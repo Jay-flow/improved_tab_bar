@@ -5,6 +5,7 @@ class DisabledTabBar extends StatefulWidget {
   const DisabledTabBar({
     Key? key,
     required this.tabs,
+    required this.length,
     this.controller,
     this.isScrollable = false,
     this.padding,
@@ -28,6 +29,7 @@ class DisabledTabBar extends StatefulWidget {
   }) : super(key: key);
 
   final List<Widget> tabs;
+  final int length;
   final TabController? controller;
   final bool isScrollable;
   final EdgeInsetsGeometry? padding;
@@ -53,7 +55,32 @@ class DisabledTabBar extends StatefulWidget {
   State<DisabledTabBar> createState() => _DisabledTabBarState();
 }
 
-class _DisabledTabBarState extends State<DisabledTabBar> {
+class _DisabledTabBarState extends State<DisabledTabBar>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = widget.controller ??
+        TabController(
+          vsync: this,
+          length: widget.length,
+        );
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _onTab(int index) {
+    if (widget.onTap != null) {
+      widget.onTap!(index);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return TabBar(
@@ -77,7 +104,7 @@ class _DisabledTabBarState extends State<DisabledTabBar> {
       overlayColor: widget.overlayColor,
       mouseCursor: widget.mouseCursor,
       enableFeedback: widget.enableFeedback,
-      onTap: widget.onTap,
+      onTap: _onTab,
       physics: widget.physics,
     );
   }
